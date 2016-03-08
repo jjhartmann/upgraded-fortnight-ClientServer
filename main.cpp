@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -119,7 +120,7 @@ void StartServer(int portNumber)
     char buffer[bufferLen];
     bzero((char *)buffer, bufferLen);
     int byteCount;
-    if ((byteCount = recv(serverSocketFileDesc, buffer, bufferLen, 0)) < 0)
+    if ((byteCount = recv(clientSocketFileDesc, buffer, bufferLen, 0)) < 0)
     {
         error("ERROR: Failed to read form buffer");
     }
@@ -127,4 +128,13 @@ void StartServer(int portNumber)
     cout << "Received bytes: " << byteCount << endl;
     cout << "Received message: " << buffer << endl;
 
+    // Send message back to client.
+    if ((byteCount = send(clientSocketFileDesc, "RECVED MESSAGE", 14, 0)) < 0)
+    {
+        error("ERROR: Failed to send to client");
+    }
+
+    // close connectinos
+    close(clientSocketFileDesc);
+    close(serverSocketFileDesc);
 }
