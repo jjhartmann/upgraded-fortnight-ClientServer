@@ -138,3 +138,11 @@ void StartServer(int portNumber)
     close(clientSocketFileDesc);
     close(serverSocketFileDesc);
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Client Implementation
+void StartClient(string hostName, int portNumber)
+{
+    
+}
