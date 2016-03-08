@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -18,6 +19,7 @@ void error(string errorMessage)
 
 // Forward declarations
 void StartServer(int portNumber);
+void StartClient(string hostname, int portnumber);
 
 ///////////////////////////////////////////////////////////////
 // Main
@@ -62,7 +64,24 @@ int main(int argc, char *argv[])
     else
     {
         // Call client
+        string hostname;
+        int portnum;
+        if (argc < 3)
+        {
+            string tmp;
+            cout << "Provide a hostname: ";
+            cin >> hostname;
+            cout << "Provide a port number: ";
+            cin >> tmp;
+            portnum = atoi(tmp.c_str());
+        }
+        else
+        {
+            hostname = argv[2];
+            portnum = atoi(argv[3]);
+        }
 
+        StartClient(hostname, portnum);
     }
 
     return 0;
@@ -144,5 +163,8 @@ void StartServer(int portNumber)
 // Client Implementation
 void StartClient(string hostName, int portNumber)
 {
-    
+    hostent *hostent1 = gethostbyname(hostName.c_str());
+    cout << hostent1->h_name << endl;
+    cout << hostent1->h_addrtype << endl;
+    cout << hostent1->h_length << endl;
 }
