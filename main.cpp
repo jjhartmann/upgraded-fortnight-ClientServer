@@ -7,18 +7,11 @@
 
 using namespace std;
 
+// Forward declarations
+void StartServer(int portNumber);
 
-
-
-
-
-
-
-
-
-
-
-
+///////////////////////////////////////////////////////////////
+// Main
 int main(int argc, char *argv[])
 {
     cout << INADDR_ANY << endl;
@@ -42,7 +35,7 @@ int main(int argc, char *argv[])
     if (type)
     {
         // Call client
-
+        StartServer(atoi(argv[2]));
     }
     else
     {
@@ -51,4 +44,21 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////
+// Server Implementation
+void StartServer(int portNumber)
+{
+    // Config variables
+    char buffer[1024];
+    int serverSocketFileDesc = -1;
+    int clientSocketFileDesc = -1;
+    int clientLen = 0;
+
+    // Socket Structure to use when making connections
+    struct sockaddr_in serverAddress, clientAddress;
+
+
 }
