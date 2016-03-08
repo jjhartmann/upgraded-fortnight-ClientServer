@@ -73,10 +73,9 @@ int main(int argc, char *argv[])
 void StartServer(int portNumber)
 {
     // Config variables
-    char buffer[1024];
     int serverSocketFileDesc = -1;
     int clientSocketFileDesc = -1;
-    int clientLen = 0;
+    socklen_t clientLen;
 
     // Socket Structure to use when making connections
     struct sockaddr_in serverAddress, clientAddress;
@@ -95,10 +94,37 @@ void StartServer(int portNumber)
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port = htons(portNumber); // Convert to network byte order.
     serverAddress.sin_addr.s_addr = INADDR_ANY;
-    
+
     // Bind socket file desc to server address
-    if (bind(serverSocketFileDesc, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0)
+    if (bind(serverSocketFileDesc, (sockaddr *) &serverAddress, sizeof(serverAddress)) < 0)
     {
         error("Error: Failed to bind socket to server address.");
     }
+
+    // Start listen on socket
+    listen(serverSocketFileDesc, 5);
+
+    clientLen = sizeof(clientAddress);
+
+    // TODO: Place in loop and use pthreads.
+    // Set up connection
+    if ((clientSocketFileDesc = accept(serverSocketFileDesc, (sockaddr *) &clientAddress, &clientLen)) < 0)
+    {
+        error("ERROR: Failed to set up connection with client");
+    }
+
+
+    // Set up buffer and connection
+    int bufferLen = 1024;
+    char buffer[bufferLen];
+    bzero((char *)buffer, bufferLen);
+    int byteCount;
+    if ((byteCount = recv(serverSocketFileDesc, buffer, bufferLen, 0)) < 0)
+    {
+        error("ERROR: Failed to read form buffer");
+    }
+
+    cout << "Received bytes: " << byteCount << endl;
+    cout << "Received message: " << buffer << endl;
+
 }
