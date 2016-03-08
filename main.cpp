@@ -197,7 +197,9 @@ void StartClient(string hostName, int portNumber)
     char buffer[buff_size];
     int byteCount;
     cout << "Enter Message to send to server: ";
-    fgets(buffer, buff_size, stdin);
+    string tmp;
+    cin >> tmp;
+    bcopy((char *) tmp.c_str(), buffer, tmp.length());
 
     if ((byteCount = send(clientSocketFileDesc, buffer, buff_size, 0)) < 0)
     {
