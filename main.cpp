@@ -186,6 +186,23 @@ void StartClient(string hostName, int portNumber)
     serverAddress.sin_port = htons(portNumber);
 
 
+    // Connect client socket to server
+    if (connect(clientSocketFileDesc, (sockaddr *) &serverAddress, sizeof(serverAddress)))
+    {
+        error("Error: Failed to connect to server.");
+    }
+
+    // Ask user for message to send server
+    int buff_size = 1024;
+    char buffer[buff_size];
+    int byteCount;
+    cout << "Enter Message to send to server: ";
+    fgets(buffer, buff_size, stdin);
+
+    if ((byteCount = send(clientSocketFileDesc, buffer, buff_size, 0)) < 0)
+    {
+        error("ERROR: sending message to server.");
+    }
 
 
 
