@@ -34,8 +34,21 @@ int main(int argc, char *argv[])
 
     if (type)
     {
+        int portnum = -1;
         // Call client
-        StartServer(atoi(argv[2]));
+        if (argc < 2)
+        {
+            string strpnum;
+            cout << "Provide a portnumber for server: ";
+            cin >> strpnum;
+            portnum = atoi(strpnum.c_str());
+        }
+        else
+        {
+            portnum = atoi(argv[2]);
+        }
+
+        StartServer(portnum);
     }
     else
     {
@@ -59,6 +72,12 @@ void StartServer(int portNumber)
 
     // Socket Structure to use when making connections
     struct sockaddr_in serverAddress, clientAddress;
+
+    // Create TCP socket over IP.
+    if ((serverSocketFileDesc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        cout << serverSocketFileDesc;
+    }
 
 
 }
