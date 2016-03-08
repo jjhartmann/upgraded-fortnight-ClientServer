@@ -7,6 +7,13 @@
 
 using namespace std;
 
+// Error Function
+void error(string errorMessage)
+{
+    perror(errorMessage.c_str());
+    exit(1);
+}
+
 // Forward declarations
 void StartServer(int portNumber);
 
@@ -32,10 +39,10 @@ int main(int argc, char *argv[])
 
     if (type > 1) return 1;
 
-    if (type)
+    if (!type)
     {
         int portnum = -1;
-        // Call client
+        // Call server
         if (argc < 2)
         {
             string strpnum;
@@ -52,7 +59,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        // Call server
+        // Call client
 
     }
 
@@ -76,8 +83,10 @@ void StartServer(int portNumber)
     // Create TCP socket over IP.
     if ((serverSocketFileDesc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        cout << serverSocketFileDesc;
+        cout << "Error: serverSocketFileDesc failed to instantiate" << endl;
+        error("Error: socket() for server failed.");
     }
+    cout << "File descriptor: " << serverSocketFileDesc;
 
 
 }
