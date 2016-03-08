@@ -204,7 +204,16 @@ void StartClient(string hostName, int portNumber)
         error("ERROR: sending message to server.");
     }
 
+    // Receive response from sever
+    bzero(buffer, buff_size);
+    if ((byteCount = recv(clientSocketFileDesc, buffer, buff_size, 0)) < 0)
+    {
+        error("ERROR: Could not read from sever.");
+    }
 
+    cout << "Message from server: " << buffer << endl;
 
+    // Close connections
+    close(clientSocketFileDesc);
 
 }
