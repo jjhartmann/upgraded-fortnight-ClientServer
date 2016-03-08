@@ -163,8 +163,31 @@ void StartServer(int portNumber)
 // Client Implementation
 void StartClient(string hostName, int portNumber)
 {
-    hostent *hostent1 = gethostbyname(hostName.c_str());
-    cout << hostent1->h_name << endl;
-    cout << hostent1->h_addrtype << endl;
-    cout << hostent1->h_length << endl;
+    int clientSocketFileDesc = -1;
+    sockaddr_in serverAddress;
+    hostent *server;
+
+    // Setup socket
+    if ((clientSocketFileDesc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        error("ERROR: Failed to create socket.");
+    }
+
+    // get server by hostname
+    if ((server = gethostbyname(hostName.c_str())) == nullptr)
+    {
+        error("ERROR: Failed to get server hostname");
+    }
+
+    // Zero out serverAddress and add configuration
+    bzero((char *) &serverAddress, sizeof(serverAddress));
+    serverAddress.sin_family = AF_INET;
+    bcopy(server->h_addr, (char *) &serverAddress.sin_addr.s_addr, server->h_length);
+    serverAddress.sin_port = htons(portNumber);
+
+
+
+
+
+
 }
