@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <string.h>
 
 using namespace std;
 
@@ -83,10 +84,21 @@ void StartServer(int portNumber)
     // Create TCP socket over IP.
     if ((serverSocketFileDesc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        cout << "Error: serverSocketFileDesc failed to instantiate" << endl;
+        cout << "Error: serverSocketFileDesc failed to instantiate. Error Code: " << serverSocketFileDesc << endl;
         error("Error: socket() for server failed.");
     }
-    cout << "File descriptor: " << serverSocketFileDesc;
 
+    // Set server address to zero
+    bzero((char *) &serverAddress, sizeof(serverAddress));
 
+    // Configure Server Address.
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_port = htons(portNumber); // Convert to network byte order.
+    serverAddress.sin_addr.s_addr = INADDR_ANY;
+    
+    // Bind socket file desc to server address
+    if (bind(serverSocketFileDesc, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0)
+    {
+        error("Error: Failed to bind socket to server address.");
+    }
 }
