@@ -127,34 +127,52 @@ void StartServer(int portNumber)
     clientLen = sizeof(clientAddress);
 
     // TODO: Place in loop and use pthreads.
-    // Set up connection
-    if ((clientSocketFileDesc = accept(serverSocketFileDesc, (sockaddr *) &clientAddress, &clientLen)) < 0)
+    while (true)
     {
-        error("ERROR: Failed to set up connection with client");
+        // Set up connection
+        if ((clientSocketFileDesc = accept(serverSocketFileDesc, (sockaddr *) &clientAddress, &clientLen)) < 0) {
+            error("ERROR: Failed to set up connection with client");
+        }
+
+        pid_t pid;
+        if ((pid = fork()) < 0)
+        {
+            error("Failed to create process");
+        }
+        else if (pid == 0)
+        {
+            // Process the client connection
+            close(serverSocketFileDesc);
+            
+            // Set up buffer and connection
+            int bufferLen = 1024;
+            char buffer[bufferLen];
+            bzero((char *) buffer, bufferLen);
+            int byteCount;
+            if ((byteCount = recv(clientSocketFileDesc, buffer, bufferLen, 0)) < 0) {
+                error("ERROR: Failed to read form buffer");
+            }
+
+            cout << "Received bytes: " << byteCount << endl;
+            cout << "Received message: " << buffer << endl;
+
+            // Send message back to client.
+            if ((byteCount = send(clientSocketFileDesc, "RECVED MESSAGE", 14, 0)) < 0) {
+                error("ERROR: Failed to send to client");
+            }
+
+            // end process
+            exit(0);
+        }
+        else
+        {
+            // Close the connection in the parent.
+            close(clientSocketFileDesc);
+        }
+
+
     }
 
-
-    // Set up buffer and connection
-    int bufferLen = 1024;
-    char buffer[bufferLen];
-    bzero((char *)buffer, bufferLen);
-    int byteCount;
-    if ((byteCount = recv(clientSocketFileDesc, buffer, bufferLen, 0)) < 0)
-    {
-        error("ERROR: Failed to read form buffer");
-    }
-
-    cout << "Received bytes: " << byteCount << endl;
-    cout << "Received message: " << buffer << endl;
-
-    // Send message back to client.
-    if ((byteCount = send(clientSocketFileDesc, "RECVED MESSAGE", 14, 0)) < 0)
-    {
-        error("ERROR: Failed to send to client");
-    }
-
-    // close connectinos
-    close(clientSocketFileDesc);
     close(serverSocketFileDesc);
 }
 
