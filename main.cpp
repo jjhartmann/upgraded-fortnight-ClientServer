@@ -281,7 +281,12 @@ void StartClient(string hostName, int portNumber)
         system("touch A3Packet_1.txt");
         
         // 2. Set up tcpdump in background process to store packet.
-        system("tcpdump -s0 -Xvvvi eth0 tcp port 12345 > A3Packet_1.txt&");
+        system("tcpdump -c 3 -s0 -Xvvvi eth0 tcp port 12345 > A3Packet_1.txt&");
+        
+        // Sleep so tcpdump get initialized
+        cout << "\n\nWAIT FOR TCPDUMP: SHOULD PROCEED? (Y): ";
+        string dummy;
+        cin >> dummy;
         
         string testMsg = "This is a message to test the server.";
         
