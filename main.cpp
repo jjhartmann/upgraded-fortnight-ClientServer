@@ -246,7 +246,7 @@ void StartClient(string hostName, int portNumber)
     }
 
     // get server by hostname
-    if ((server = gethostbyname(hostName.c_str())) == nullptr)
+    if ((server = gethostbyname(hostName.c_str())) == NULL)
     {
         error("ERROR: Failed to get server hostname");
     }
@@ -269,6 +269,41 @@ void StartClient(string hostName, int portNumber)
     int buff_size = 1024;
     char buffer[buff_size];
     int byteCount;
+    
+    // Test One Caputure packet
+    cout << "Conduct Test One (caputre TCP packet)? (Y,n): ";
+    string testAccept;
+    cin >> testAccept;
+    if (testAccept == "Y")
+    {
+        // Capture a TCP packet and store in file.
+        // 1. Make a file to store packet.
+        system("touch A3Packet_1.txt");
+        
+        // 2. Set up tcpdump in background process to store packet.
+        system("tcpdump -s0 -Xvvvi eth0 tcp port 12345 > A3Packet_1.txt&");
+        
+        string testMsg = "This is a message to test the server.";
+        
+        bzero((char *)buffer, buff_size);
+        bcopy((char *) testMsg.c_str(), buffer, testMsg.length());
+        
+        if ((byteCount = send(clientSocketFileDesc, buffer, buff_size, 0)) < 0)
+        {
+            error("ERROR: sending message to server.");
+        }
+        
+        // Receive response from sever
+        bzero(buffer, buff_size);
+        if ((byteCount = recv(clientSocketFileDesc, buffer, buff_size, 0)) < 0)
+        {
+            error("ERROR: Could not read from sever.");
+        }
+        
+        cout << "Message from server: " << buffer << endl;
+    }
+    
+    
     
     bool exit = false;
     while (!exit){
@@ -293,8 +328,6 @@ void StartClient(string hostName, int portNumber)
         }
         
         cout << "Message from server: " << buffer << endl;
-        
-        cout << "TMP AND ESXIT" << (tmp == "exit") << endl;
         exit = (tmp == "exit");
     }
     // Close connections
