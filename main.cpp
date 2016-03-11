@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
 #include <unistd.h>
@@ -235,8 +236,15 @@ void InfiniteRun(int csfd)
 // Client Implementation
 void StartClient(string hostName, int portNumber)
 {
+    // Check to see if host is name or address
+    cout << "Is host identified by name? (Y/n): ";
+    string answer;
+    cin >> answer;
+    
+    
     int clientSocketFileDesc = -1;
     sockaddr_in serverAddress;
+    struct in_addr serverAddr;
     hostent *server;
 
     // Setup socket
@@ -246,11 +254,23 @@ void StartClient(string hostName, int portNumber)
     }
 
     // get server by hostname
-    if ((server = gethostbyname(hostName.c_str())) == NULL)
+    if (answer == "Y")
     {
-        error("ERROR: Failed to get server hostname");
+        // Use the hostname
+        if ((server = gethostbyname(hostName.c_str())) == NULL)
+        {
+            error("ERROR: Failed to get server hostname");
+        }
     }
-
+    else
+    {
+        // Use IP address
+        inet_pton(AF_INET, hostName.c_str(), &serverAddr);
+        if ((server = gethostbyaddr(&serverAddr, sizeof(serverAddr), AF_INET)) == NULL)
+        {
+            error("ERROR: Failed to get server address");
+        }
+    }
     // Zero out serverAddress and add configuration
     bzero((char *) &serverAddress, sizeof(serverAddress));
     serverAddress.sin_family = AF_INET;
