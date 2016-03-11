@@ -33,6 +33,7 @@ void error(string errorMessage)
 
 // Forward declarations
 void StartServer(int portNumber);
+void InfiniteRun(int csfd);
 void StartClient(string hostname, int portnumber);
 
 ///////////////////////////////////////////////////////////////
@@ -166,23 +167,24 @@ void StartServer(int portNumber)
         {
             // Process the client connection
             close(serverSocketFileDesc);
-
-            // Set up buffer and connection
-            int bufferLen = 1024;
-            char buffer[bufferLen];
-            bzero((char *) buffer, bufferLen);
-            int byteCount;
-            if ((byteCount = recv(clientSocketFileDesc, buffer, bufferLen, 0)) < 0) {
-                error("ERROR: Failed to read form buffer");
-            }
-
-            cout << "Received bytes: " << byteCount << endl;
-            cout << "Received message: " << buffer << endl;
-
-            // Send message back to client.
-            if ((byteCount = send(clientSocketFileDesc, "RECVED MESSAGE", 14, 0)) < 0) {
-                error("ERROR: Failed to send to client");
-            }
+            InfiniteRun(clientSocketFileDesc);
+            
+//            // Set up buffer and connection
+//            int bufferLen = 1024;
+//            char buffer[bufferLen];
+//            bzero((char *) buffer, bufferLen);
+//            int byteCount;
+//            if ((byteCount = recv(clientSocketFileDesc, buffer, bufferLen, 0)) < 0) {
+//                error("ERROR: Failed to read form buffer");
+//            }
+//
+//            cout << "Received bytes: " << byteCount << endl;
+//            cout << "Received message: " << buffer << endl;
+//
+//            // Send message back to client.
+//            if ((byteCount = send(clientSocketFileDesc, "RECVED MESSAGE", 14, 0)) < 0) {
+//                error("ERROR: Failed to send to client");
+//            }
 
             // end process
             exit(0);
@@ -199,6 +201,35 @@ void StartServer(int portNumber)
     close(serverSocketFileDesc);
 }
 
+void InfiniteRun(int csfd)
+{
+    cout << "ENTERED PROCESS FOR CLIENT" << endl;
+    // Set up buffer and connection
+    int bufferLen = 1024;
+    char buffer[bufferLen];
+    bool exit = false;
+    while (!exit)
+    {
+        bzero((char *) buffer, bufferLen);
+        int byteCount;
+        if ((byteCount = recv(csfd, buffer, bufferLen, 0)) < 0) {
+            error("ERROR: Failed to read form buffer");
+        }
+        
+        cout << "Received bytes: " << byteCount << endl;
+        cout << "Received message: " << buffer << endl;
+        
+        // Send message back to client.
+        if ((byteCount = send(csfd, "RECVED MESSAGE", 14, 0)) < 0) {
+            error("ERROR: Failed to send to client");
+        }
+        
+        exit = (strncmp("exit", buffer, 4) == 0);
+    }
+    
+    cout << "EXIT PROCESS FOR CLIENT" << endl;
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Client Implementation
@@ -233,6 +264,10 @@ void StartClient(string hostName, int portNumber)
         error("Error: Failed to connect to server.");
     }
 
+    
+    
+    
+    
     // Ask user for message to send server
     int buff_size = 1024;
     char buffer[buff_size];
