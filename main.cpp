@@ -1,6 +1,9 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -9,6 +12,17 @@
 #include <unistd.h>
 
 using namespace std;
+
+// SIGCHLD Handler
+void handle_sigchld(int sig)
+{
+    // cout << "SENT SIGCHLD" << endl;
+    int serrno = errno;
+    while (waitpid((pid_t) -1, 0, WNOHANG) > 0) {
+        // Do until all child processes are reaped.
+    }
+    errno = serrno;
+}
 
 // Error Function
 void error(string errorMessage)
@@ -123,10 +137,19 @@ void StartServer(int portNumber)
 
     // Start listen on socket
     listen(serverSocketFileDesc, 5);
-
     clientLen = sizeof(clientAddress);
 
-    // TODO: Place in loop and use pthreads.
+    // Set up sigchld handler
+    struct sigaction sa;
+    sa.sa_handler = &handle_sigchld;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
+    if (sigaction(SIGCHLD, &sa, 0) < 0)
+    {
+        error("ERROR: Failed to setup SIGCHLD handler.");
+    }
+
+    // Start server loop
     while (true)
     {
         // Set up connection
@@ -143,7 +166,7 @@ void StartServer(int portNumber)
         {
             // Process the client connection
             close(serverSocketFileDesc);
-            
+
             // Set up buffer and connection
             int bufferLen = 1024;
             char buffer[bufferLen];
