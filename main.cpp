@@ -265,32 +265,38 @@ void StartClient(string hostName, int portNumber)
     }
 
     
-    
-    
-    
     // Ask user for message to send server
     int buff_size = 1024;
     char buffer[buff_size];
     int byteCount;
-    cout << "Enter Message to send to server: ";
-    string tmp;
-    cin >> tmp;
-    bcopy((char *) tmp.c_str(), buffer, tmp.length());
-
-    if ((byteCount = send(clientSocketFileDesc, buffer, buff_size, 0)) < 0)
-    {
-        error("ERROR: sending message to server.");
+    
+    bool exit = false;
+    while (!exit){
+        cout << "Enter Message to send to server: ";
+        string tmp;
+        cin.ignore();
+        getline (cin,tmp);
+        
+        bzero((char *)buffer, buff_size);
+        bcopy((char *) tmp.c_str(), buffer, tmp.length());
+        
+        if ((byteCount = send(clientSocketFileDesc, buffer, buff_size, 0)) < 0)
+        {
+            error("ERROR: sending message to server.");
+        }
+        
+        // Receive response from sever
+        bzero(buffer, buff_size);
+        if ((byteCount = recv(clientSocketFileDesc, buffer, buff_size, 0)) < 0)
+        {
+            error("ERROR: Could not read from sever.");
+        }
+        
+        cout << "Message from server: " << buffer << endl;
+        
+        cout << "TMP AND ESXIT" << (tmp == "exit") << endl;
+        exit = (tmp == "exit");
     }
-
-    // Receive response from sever
-    bzero(buffer, buff_size);
-    if ((byteCount = recv(clientSocketFileDesc, buffer, buff_size, 0)) < 0)
-    {
-        error("ERROR: Could not read from sever.");
-    }
-
-    cout << "Message from server: " << buffer << endl;
-
     // Close connections
     close(clientSocketFileDesc);
 
